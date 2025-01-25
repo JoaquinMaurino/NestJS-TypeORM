@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": false,                    // Habilita el modo estricto (activa varias reglas útiles)
+    "strictNullChecks": true,          // Ya lo tienes activado, ¡perfecto!
+    "noImplicitAny": true,             // Exige que todas las variables tengan tipos explícitos si no se pueden inferir
+    "strictBindCallApply": true,       // Mejora la verificación de tipos en métodos como .bind() o .call()
+    "noFallthroughCasesInSwitch": true,// Detecta errores de lógica en estructuras `switch`
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": false,            // Muestra advertencias sobre variables no usadas
+    "noUnusedParameters": false,        // Muestra advertencias sobre parámetros no usados
+    "noImplicitReturns": true,         // Asegura que todas las ramas de una función devuelvan un valor
+    "noImplicitThis": true,            // Previene errores comunes relacionados con `this`
+    "useUnknownInCatchVariables": true // Requiere que los errores en bloques catch sean manejados correctamente
+  }
+}
