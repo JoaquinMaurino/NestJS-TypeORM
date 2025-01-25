@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { ParseIntPipe } from 'src/common/parse-int.pipe';
-import { CreateCustomerDto, UpdateCustomerDto } from 'src/dtos/customer.dto';
-import { CustomersService } from 'src/services/customers.service';
+import { ParseIntPipe } from '../../common/parse-int.pipe';
+import { CreateCustomerDto, UpdateCustomerDto } from '../dtos/customer.dto';
+import { CustomersService } from '../services/customers.service';
 
 
 @Controller('customers')
