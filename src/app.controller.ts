@@ -10,4 +10,13 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @Get('/tasks')
+  getTasks(): any[] {
+    return this.appService.getTasks()
+  }
+
+  @Get('data')
+  envData() {
+    return this.appService.getEnvData()
+  }
 }
