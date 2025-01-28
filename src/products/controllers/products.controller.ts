@@ -40,14 +40,14 @@ export class ProductsController {
 
     @Post()
     @ApiOperation({ summary: 'Create a single product' })
-    createProduct(@Body() payload: CreateProductDto) {
-        return this.productsService.createOne(payload)
+    createProduct(@Body() data: CreateProductDto) {
+        return this.productsService.createOne(data)
     }
 
     @Put(':id')
     @ApiOperation({ summary: 'Update an existing product by ID' })
-    updateProduct(@Param('id', ParseIntPipe) id: number, @Body() payload: UpdateProductDto) {
-        return this.productsService.updateOne(id, payload)
+    updateProduct(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateProductDto) {
+        return this.productsService.updateOne(id, data)
     }
 
     @Delete(':id')

@@ -19,10 +19,6 @@ export class UsersService {
     private users: User[] = []
 
     findAll() {
-        const apiKey = this.configService.get('API_KEY');
-        const myDb = this.configService.get('DATABASE');
-        console.log(`API KEY: ${apiKey} - Database: ${myDb}`);
-
         return this.users
     }
 
@@ -69,12 +65,12 @@ export class UsersService {
     }
 
     //Orders method
-    getUserOrders(id: number): Order {
+    async getUserOrders(id: number) {
         const user = this.findOne(id)
         const newOrder: Order = {
             date: new Date(),
             user,
-            products: this.productService.findAll()
+            products: await this.productService.findAll()
         }
         return newOrder;
     }
