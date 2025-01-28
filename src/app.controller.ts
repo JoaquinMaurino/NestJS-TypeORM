@@ -10,13 +10,18 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('/tasks')
+  @Get('/jp-tasks')
   getTasks(): any[] {
-    return this.appService.getTasks()
+    return this.appService.getTasksJSONPlaceholder()
   }
 
   @Get('data')
   envData() {
     return this.appService.getEnvData()
+  }
+
+  @Get('/pg-tasks')
+  pgTasks() {
+    return this.appService.getTasksPG()
   }
 }

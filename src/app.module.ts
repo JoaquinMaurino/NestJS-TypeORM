@@ -13,15 +13,16 @@ import { enviroments } from '../enviroments'
 import config from '../config'
 
 
+
+
 @Module({
   imports: [ConfigModule.forRoot({
     envFilePath: enviroments[process.env.NODE_ENV as keyof typeof enviroments] || '.env',
     load: [config],
     isGlobal: true,
     validationSchema: Joi.object({
-      API_KEY: Joi.number().required(),
+      API_KEY: Joi.string().required(),
       DATABASE: Joi.string().required(),
-      DATABASE_PORT: Joi.number().required()
     })
   }), ProductsModule, UsersModule, HttpModule, DatabaseModule],
   controllers: [AppController],

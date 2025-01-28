@@ -1,5 +1,7 @@
 import { ConfigService } from '@nestjs/config';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Client } from 'pg';
+
 import { generateId } from '../../common/generate-id'
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 import { User } from '../entities/user.entity';
@@ -12,6 +14,7 @@ export class UsersService {
     constructor(
         private productService: ProductsService,
         private configService: ConfigService,
+        @Inject('PG') private clientPg: Client
     ) { }
     private users: User[] = []
 
@@ -75,4 +78,16 @@ export class UsersService {
         }
         return newOrder;
     }
+
+    async getTasksPG() {
+        try {
+            const tasks = await this.clientPg.query('SELECT * FROM tasks')
+            return tasks.rows
+        } catch (error) {
+            console.log('Error fetching tasks from postgres client, error: ', error);
+            throw new Error('Could not fetch tasks from postgres client')
+        }
+    }
+
+
 }
