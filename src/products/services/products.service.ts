@@ -38,8 +38,9 @@ export class ProductsService {
     if (!product) {
       throw new NotFoundException(`Proudct with ID: ${id} not found`);
     }
-    this.productRepo.merge(product, data);
-    return await this.productRepo.save(product);
+    const updatedProduct = this.productRepo.merge(product, data);
+    await this.productRepo.save(updatedProduct);
+    return updatedProduct
   }
 
   async deleteOne(id: number): Promise<Product> {

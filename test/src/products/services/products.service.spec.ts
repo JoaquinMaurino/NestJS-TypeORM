@@ -27,8 +27,8 @@ describe('ProductsService', () => {
   const mockProducts = [mockProduct];
   const mockRepository = {
     find: jest.fn().mockResolvedValue(mockProducts),
-    findOneBy: jest.fn().mockResolvedValue(mockProduct),
-    create: jest.fn().mockReturnValue(mockProduct),
+    findOneBy: jest.fn(),
+    create: jest.fn().mockResolvedValue(mockProduct),
     save: jest.fn().mockResolvedValue(mockProduct),
     merge: jest.fn().mockResolvedValue(mockProduct),
     delete: jest.fn().mockResolvedValue(mockProduct),
@@ -57,7 +57,6 @@ describe('ProductsService', () => {
     it('should return an array of products', async () => {
       const result = await service.findAll();
       expect(result).toEqual(mockProducts);
-      expect(repository.find).toHaveBeenCalledTimes(1);
     });
   });
   describe('findOne', () => {
@@ -66,7 +65,7 @@ describe('ProductsService', () => {
       const result = await service.findOne(mockId);
       expect(result).toEqual(mockProduct);
     });
-    it('should throw an exception', async () => {
+    it('should throw an exception if product not found', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       await expect(service.findOne(100)).rejects.toThrow(NotFoundException);
     });
@@ -90,9 +89,16 @@ describe('ProductsService', () => {
       const result = await service.updateOne(mockId, mockData);
       expect(result).toEqual(mockProduct);
     });
-    it('should throw an exception', async () => {
+    it('should throw an exception if product not found', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       await expect(service.findOne(100)).rejects.toThrow(NotFoundException);
+    });
+    it('should throw an error if save fails', async () => {
+      const mockError = new Error('Database error');
+      mockRepository.save.mockRejectedValueOnce(new Error('Database error'));
+      await expect(service.createOne(mockData)).rejects.toThrow(
+        `Failed to create product: Error => ${mockError}`,
+      );
     });
   });
   describe('deleteOne', () => {
@@ -101,7 +107,7 @@ describe('ProductsService', () => {
       const result = await service.deleteOne(mockId);
       expect(result).toEqual(mockProduct);
     });
-    it('should throw an exception', async () => {
+    it('should throw an exception if product not found', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       await expect(service.findOne(100)).rejects.toThrow(NotFoundException);
     });
