@@ -14,10 +14,6 @@ export class UsersController {
     getUsers() {
         return this.userService.findAll()
     }
-    @Get('/tasks')
-    getTasks() {
-        return this.userService.getTasksPG()
-    }
     @Get('/:id')
     getUser(@Param('id', ParseIntPipe) id: number) {
         return this.userService.findOne(id)

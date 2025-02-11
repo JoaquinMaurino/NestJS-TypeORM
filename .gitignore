@@ -30,7 +30,8 @@ lerna-debug.log*
 
 #Postgres data
 /postgres_data
-
+#MySql data
+/mysql_data
 # IDE - VSCode
 .vscode/*
 !.vscode/settings.json

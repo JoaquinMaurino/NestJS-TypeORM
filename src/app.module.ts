@@ -36,7 +36,7 @@ import config from '../config'
         return tasks.data;
       },
       inject: [HttpService]
-    }
+    },
   ],
 })
 export class AppModule { }
