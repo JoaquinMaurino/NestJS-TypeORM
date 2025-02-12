@@ -6,7 +6,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Product } from '../../../../src/products/entities/product.entity';
 import { CreateProductDto } from '../../../../src/products/dtos/product.dto';
 import { NotFoundException } from '@nestjs/common';
-import { mock } from 'node:test';
 
 describe('ProductsService', () => {
   let service: ProductsService;
@@ -77,7 +76,7 @@ describe('ProductsService', () => {
     });
     it('should throw an error if save fails', async () => {
       const mockError = new Error('Database error');
-      mockRepository.save.mockRejectedValueOnce(new Error('Database error'));
+      mockRepository.save.mockRejectedValueOnce(mockError);
       await expect(service.createOne(mockData)).rejects.toThrow(
         `Failed to create product: Error => ${mockError}`,
       );
@@ -89,13 +88,13 @@ describe('ProductsService', () => {
       const result = await service.updateOne(mockId, mockData);
       expect(result).toEqual(mockProduct);
     });
-    it('should throw an exception if product not found', async () => {
+    it('should throw a not found exception if product not found', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       await expect(service.findOne(100)).rejects.toThrow(NotFoundException);
     });
     it('should throw an error if save fails', async () => {
       const mockError = new Error('Database error');
-      mockRepository.save.mockRejectedValueOnce(new Error('Database error'));
+      mockRepository.save.mockRejectedValueOnce(mockError);
       await expect(service.createOne(mockData)).rejects.toThrow(
         `Failed to create product: Error => ${mockError}`,
       );
@@ -107,7 +106,7 @@ describe('ProductsService', () => {
       const result = await service.deleteOne(mockId);
       expect(result).toEqual(mockProduct);
     });
-    it('should throw an exception if product not found', async () => {
+    it('should throw a not found exception if product not found', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       await expect(service.findOne(100)).rejects.toThrow(NotFoundException);
     });

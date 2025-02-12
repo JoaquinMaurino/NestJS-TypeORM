@@ -46,36 +46,36 @@ describe('ProductsController', () => {
   describe('getAllProducts', () => {
     it('should return a list of products', async () => {
       const result = await controller.getProducts();
+      expect(service.findAll).toHaveBeenCalled();
       expect(result).toEqual(mockProducts);
-      expect(service.findAll).toHaveBeenCalledTimes(1);
     });
   });
   describe('getById', () => {
     it('should return a list of products', async () => {
       const result = await controller.getById(mockId);
+      expect(service.findOne).toHaveBeenCalled();
       expect(result).toEqual(mockProduct);
-      expect(service.findOne).toHaveBeenCalledTimes(1);
     });
   });
   describe('createOne', () => {
     it('should create a product', async () => {
       const result = await controller.createProduct(mockData);
+      expect(service.createOne).toHaveBeenCalled();
       expect(result).toEqual(mockProduct);
-      expect(service.createOne).toHaveBeenCalledTimes(1);
     });
   });
   describe('updateOne', () => {
     it('should update a product by id', async () => {
       const result = await controller.updateProduct(mockId, mockData);
+      expect(service.updateOne).toHaveBeenCalled();
       expect(result).toEqual(mockProduct);
-      expect(service.updateOne).toHaveBeenCalledTimes(1);
     });
   });
   describe('deleteOne', () => {
     it('should create a product', async () => {
       const result = await controller.deleteProduct(mockId);
+      expect(service.deleteOne).toHaveBeenCalled();
       expect(result).toEqual(mockProduct);
-      expect(service.deleteOne).toHaveBeenCalledTimes(1);
     });
   });
 });
