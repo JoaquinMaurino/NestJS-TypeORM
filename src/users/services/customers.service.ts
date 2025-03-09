@@ -1,57 +1,76 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { generateId } from '../../common/generate-id'
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { Customer } from '../entities/customer.entity';
 import { CreateCustomerDto, UpdateCustomerDto } from '../dtos/customer.dto';
-
+import { FilterOptionsDto } from '../../common/filter-options.dto';
 
 @Injectable()
 export class CustomersService {
+  constructor(
+    @InjectRepository(Customer) private customerRepo: Repository<Customer>,
+  ) {}
 
-    private customers: Customer[] = []
-    
-        findAll() {
-            return this.customers
-        }
-    
-        findOne(id: number) {
-            const customer = this.customers.find((customer) => customer.id === id)
-            if (!customer) {
-                throw new NotFoundException(`Customer with ID: ${id} not found`)
-            }
-            return customer
-        }
-    
-        createOne(payload: CreateCustomerDto) {
-            const newCustomer = {
-                id: generateId(this.customers),
-                ...payload
-            }
-            this.customers.push(newCustomer)
-            return (newCustomer)
-        }
-    
-        remove(id: number) {
-            const customer = this.findOne(id)
-            if (!customer) {
-                throw new NotFoundException(`Customer with ID: ${id} not found`)
-            }
-            this.customers = this.customers.filter((customer) => customer.id !== id)
-            return {
-                message: 'customer deleted successfully',
-                data: customer
-            }
-        }
-    
-        updateOne(id: number, payload: UpdateCustomerDto) {
-            const index = this.customers.findIndex((customer) => customer.id === id)
-            if (index === -1) {
-                throw new NotFoundException(`Customer with ID: ${id} not found`)
-            }
-            this.customers[index] = {
-                ...this.customers[index],
-                ...payload
-            }
-            return this.customers[index]
-    
-        }
+  async findAll(params: FilterOptionsDto) {
+    try {
+      const { limit, offset } = params;
+      const customers = await this.customerRepo.find({
+        take: limit,
+        skip: offset,
+      });
+      return customers;
+    } catch (error) {
+      throw new Error(`Failed to fetch customers: Error => ${error}`);
+    }
+  }
+
+  async findOne(id: number) {
+    try {
+      const customer = await this.customerRepo.findOne({
+        where: { id },
+        relations: ['orders'],
+      });
+      if (!customer) {
+        throw new NotFoundException(`Customer with ID: ${id} not found`);
+      }
+      return customer;
+    } catch (error) {
+      throw new Error(`Failed to fetch customer: Error => ${error}`);
+    }
+  }
+
+  async createOne(data: CreateCustomerDto) {
+    try {
+      const newCustomer = await this.customerRepo.create(data);
+      await this.customerRepo.save(newCustomer);
+      return newCustomer;
+    } catch (error) {
+      throw new Error(`Failed to create customer: Error => ${error}`);
+    }
+  }
+
+  async deleteOne(id: number) {
+    try {
+      const customer = await this.findOne(id);
+      await this.customerRepo.delete(id);
+      return {
+        message: 'customer deleted successfully',
+        data: customer,
+      };
+    } catch (error) {
+      throw new Error(`Failed to delete customer: Error => ${error}`);
+    }
+  }
+
+  async updateOne(id: number, data: UpdateCustomerDto) {
+    try {
+      const customer = await this.findOne(id);
+      const updatedCustomer = await this.customerRepo.merge(customer, data);
+      await this.customerRepo.save(updatedCustomer);
+      return updatedCustomer;
+    } catch (error) {
+      throw new Error(`Failed to update customer - Error: ${error}`);
+    }
+  }
 }

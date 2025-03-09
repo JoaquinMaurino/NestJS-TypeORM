@@ -9,7 +9,10 @@ async function bootstrap() {
   //Config for Pipes Validation => requests are required to follow dtos
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
-    forbidNonWhitelisted: true
+    forbidNonWhitelisted: true,
+    transformOptions: {
+      enableImplicitConversion: true
+    }
   })
   );
 

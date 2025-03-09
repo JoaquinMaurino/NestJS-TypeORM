@@ -1,57 +1,71 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { generateId } from '../../common/generate-id'
-import { Category } from '../entities/category.entity';
-import { CreateCategoryDto, UpdateCategoryDto } from '../dtos/category.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
+import { CreateCategoryDto, UpdateCategoryDto } from '../dtos/category.dto';
+import { Category } from '../entities/category.entity';
+import { FilterOptionsDto } from '../../common/filter-options.dto';
 
 @Injectable()
 export class CategoriesService {
-
-    private categories: Category[] = []
-
-    findAll() {
-        return this.categories
+  constructor(
+    @InjectRepository(Category) private categoryRepo: Repository<Category>,
+  ) {}
+  async findAll(params: FilterOptionsDto): Promise<Category[]> {
+    try {
+      const { limit, offset } = params;
+      const Categorys: Category[] = await this.categoryRepo.find({
+        take: limit,
+        skip: offset,
+      });
+      return Categorys;
+    } catch (error) {
+      throw new Error(`Failed to fetch Categories - Error: ${error}`);
     }
+  }
 
-    findOne(id: number) {
-        const category = this.categories.find((category) => category.id === id)
-        if (!category) {
-            throw new NotFoundException(`Category with ID: ${id} not found`)
-        }
-        return category
+  async findOne(id: number): Promise<Category> {
+    const Category: Category | null = await this.categoryRepo.findOne({
+      where: { id },
+      relations: ['products'],
+    });
+    if (!Category) {
+      throw new NotFoundException(`Category with ID: ${id} not found`);
     }
+    return Category;
+  }
 
-    createOne(payload: CreateCategoryDto) {
-        const newCategory = {
-            id: generateId(this.categories),
-            ...payload
-        }
-        this.categories.push(newCategory)
-        return (newCategory)
+  async createOne(data: CreateCategoryDto): Promise<Category> {
+    try {
+      const newCategory: Category = this.categoryRepo.create(data);
+      await this.categoryRepo.save(newCategory);
+      return newCategory;
+    } catch (error) {
+      throw new Error(`Failed to create Category - Error: ${error}`);
     }
+  }
 
-    remove(id: number) {
-        const category = this.findOne(id)
-        if (!category) {
-            throw new NotFoundException(`Category with ID: ${id} not found`)
-        }
-        this.categories = this.categories.filter((category) => category.id !== id)
-        return {
-            message: 'category deleted successfully',
-            data: category
-        }
+  async deleteOne(id: number): Promise<{ message: string; data: Category }> {
+    try {
+      const category: Category = await this.findOne(id);
+      await this.categoryRepo.delete(id);
+      return {
+        message: 'Category deleted successfully',
+        data: category,
+      };
+    } catch (error) {
+      throw new Error(`Failed to delete Category - Error: ${error}`);
     }
+  }
 
-    updateOne(id: number, payload: UpdateCategoryDto) {
-        const index = this.categories.findIndex((category) => category.id === id)
-        if (index === -1) {
-            throw new NotFoundException(`Category with ID: ${id} not found`)
-        }
-        this.categories[index] = {
-            ...this.categories[index],
-            ...payload
-        }
-        return this.categories[index]
-
+  async updateOne(id: number, data: UpdateCategoryDto): Promise<Category> {
+    try {
+      const Category: Category = await this.findOne(id);
+      const updatedCategory: Category = this.categoryRepo.merge(Category, data);
+      await this.categoryRepo.save(updatedCategory);
+      return updatedCategory;
+    } catch (error) {
+      throw new Error(`Failed to update Category - Error: ${error}`);
     }
+  }
 }

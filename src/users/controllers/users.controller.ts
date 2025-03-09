@@ -1,37 +1,52 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-
 
 import { ParseIntPipe } from '../../common/parse-int.pipe';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 import { UsersService } from '../services/users.service';
 
+import { FilterOptionsDto } from '../../common/filter-options.dto';
+
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-    constructor(private userService: UsersService) { }
-    @Get()
-    getUsers() {
-        return this.userService.findAll()
-    }
-    @Get('/:id')
-    getUser(@Param('id', ParseIntPipe) id: number) {
-        return this.userService.findOne(id)
-    }
-    @Get('/:id/orders')
-    getOrders(@Param('id', ParseIntPipe) id: number) {
-        return this.userService.getUserOrders(id)
-    }
-    @Post()
-    createUser(@Body() payload: CreateUserDto) {
-        return this.userService.createOne(payload)
-    }
-    @Put('/:id')
-    updateUser(@Param('id', ParseIntPipe) id: number, @Body() payload: UpdateUserDto) {
-        return this.userService.updateOne(id, payload)
-    }
-    @Delete('/:id')
-    deleteUser(@Param('id', ParseIntPipe) id: number) {
-        return this.userService.remove(id)
-    }
+  constructor(private userService: UsersService) {}
+  @Get()
+  async getUsers(
+    @Query() params: FilterOptionsDto
+  ) {
+    return await this.userService.findAll(params);
+  }
+  @Get('/:id')
+  async getUser(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.findOne(id);
+  }
+  @Get('/:id/orders')
+  async getOrders(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.getUserOrders(id);
+  }
+  @Post()
+  async createUser(@Body() payload: CreateUserDto) {
+    return await this.userService.createOne(payload);
+  }
+  @Put('/:id')
+  async updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateUserDto,
+  ) {
+    return await this.userService.updateOne(id, data);
+  }
+  @Delete('/:id')
+  async deleteUser(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.deleteOne(id);
+  }
 }

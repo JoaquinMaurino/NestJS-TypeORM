@@ -1,57 +1,70 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { generateId } from '../../common/generate-id'
-import { Brand } from '../entities/brand.entity';
-import { CreateBrandDto, UpdateBrandDto } from '../dtos/brand.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
+import { CreateBrandDto, UpdateBrandDto } from '../dtos/brand.dto';
+import { Brand } from '../entities/brand.entity';
+import { FilterOptionsDto } from 'src/common/filter-options.dto';
 
 @Injectable()
 export class BrandsService {
+  constructor(@InjectRepository(Brand) private brandRepo: Repository<Brand>) {}
 
-    private brands: Brand[] = []
-
-    findAll() {
-        return this.brands
+  async findAll(params: FilterOptionsDto): Promise<Brand[]> {
+    try {
+      const {limit, offset} = params;
+      const Brands: Brand[] = await this.brandRepo.find({
+        take: limit,
+        skip: offset,
+      });
+      return Brands;
+    } catch (error) {
+      throw new Error(`Failed to fetch Brands - Error: ${error}`);
     }
+  }
 
-    findOne(id: number) {
-        const brand = this.brands.find((brand) => brand.id === id)
-        if (!brand) {
-            throw new NotFoundException(`Brand with ID: ${id} not found`)
-        }
-        return brand
+  async findOne(id: number): Promise<Brand> {
+    const Brand: Brand | null = await this.brandRepo.findOne({
+      where: { id },
+      relations: ['products'],
+    });
+    if (!Brand) {
+      throw new NotFoundException(`Brand with ID: ${id} not found`);
     }
+    return Brand;
+  }
 
-    createOne(payload: CreateBrandDto) {
-        const newbrand = {
-            id: generateId(this.brands),
-            ...payload
-        }
-        this.brands.push(newbrand)
-        return (newbrand)
+  async createOne(data: CreateBrandDto): Promise<Brand> {
+    try {
+      const newBrand: Brand = this.brandRepo.create(data);
+      await this.brandRepo.save(newBrand);
+      return newBrand;
+    } catch (error) {
+      throw new Error(`Failed to create Brand - Error: ${error}`);
     }
+  }
 
-    remove(id: number) {
-        const brand = this.findOne(id)
-        if (!brand) {
-            throw new NotFoundException(`Brand with ID: ${id} not found`)
-        }
-        this.brands = this.brands.filter((brand) => brand.id !== id)
-        return {
-            message: 'brand deleted successfully',
-            data: brand
-        }
+  async deleteOne(id: number): Promise<{ message: string; data: Brand }> {
+    try {
+      const Brand: Brand = await this.findOne(id);
+      await this.brandRepo.delete(id);
+      return {
+        message: 'Brand deleted successfully',
+        data: Brand,
+      };
+    } catch (error) {
+      throw new Error(`Failed to delete Brand - Error: ${error}`);
     }
+  }
 
-    updateOne(id: number, payload: UpdateBrandDto) {
-        const index = this.brands.findIndex((brand) => brand.id === id)
-        if (index === -1) {
-            throw new NotFoundException(`Brand with ID: ${id} not found`)
-        }
-        this.brands[index] = {
-            ...this.brands[index],
-            ...payload
-        }
-        return this.brands[index]
-
+  async updateOne(id: number, data: UpdateBrandDto): Promise<Brand> {
+    try {
+      const Brand: Brand = await this.findOne(id);
+      const updatedBrand: Brand = this.brandRepo.merge(Brand, data);
+      await this.brandRepo.save(updatedBrand);
+      return updatedBrand;
+    } catch (error) {
+      throw new Error(`Failed to update Brand - Error: ${error}`);
     }
+  }
 }

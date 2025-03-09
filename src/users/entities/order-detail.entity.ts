@@ -3,15 +3,15 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Column,
   ManyToOne,
-  OneToMany,
 } from 'typeorm';
 
-import { Customer } from './customer.entity';
-import { OrderDetail } from './order-detail.entity';
+import { Product } from '../../products/entities/product.entity';
+import { Order } from './order.entity';
 
-@Entity({name: 'orders'})
-export class Order {
+@Entity({name: 'order_details'})
+export class OrderDetail {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -21,9 +21,12 @@ export class Order {
   @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   updateAt: Date;
 
-  @ManyToOne(() => Customer, (customer) => customer.orders)
-  customer: Customer;
+  @Column({ type: 'int' })
+  quantity: number;
 
-  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order)
-  orderDetail: OrderDetail[];
+  @ManyToOne(() => Product)
+  product: Product;
+
+  @ManyToOne(() => Order, (order) => order.orderDetail)
+  order: Order;
 }

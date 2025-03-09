@@ -15,9 +15,6 @@ export class CreateCustomerDto {
   @IsNotEmpty()
   readonly phone: string;
 
-  @IsDate()
-  @IsNotEmpty()
-  birthday: Date
 }
 
 export class UpdateCustomerDto extends PartialType(CreateCustomerDto) { }

@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from '../../../../src/products/services/products.service';
 
-import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Product } from '../../../../src/products/entities/product.entity';
 import { CreateProductDto } from '../../../../src/products/dtos/product.dto';
@@ -9,7 +8,6 @@ import { NotFoundException } from '@nestjs/common';
 
 describe('ProductsService', () => {
   let service: ProductsService;
-  let repository: Repository<Product>;
 
   const mockId = 1;
   const mockData: CreateProductDto = {
@@ -22,6 +20,8 @@ describe('ProductsService', () => {
   const mockProduct: Product = {
     id: mockId,
     ...mockData,
+    updateAt: expect.any(Date),
+    createAt: expect.any(Date),
   };
   const mockProducts = [mockProduct];
   const mockRepository = {
@@ -45,7 +45,6 @@ describe('ProductsService', () => {
     }).compile();
 
     service = module.get<ProductsService>(ProductsService);
-    repository = module.get<Repository<Product>>(getRepositoryToken(Product));
   });
 
   it('should be defined', () => {
@@ -60,23 +59,27 @@ describe('ProductsService', () => {
   });
   describe('findOne', () => {
     it('should return a product', async () => {
-      mockRepository.findOneBy.mockResolvedValueOnce(mockProduct);
+      jest
+        .spyOn(mockRepository, 'findOneBy')
+        .mockResolvedValueOnce(mockProduct);
       const result = await service.findOne(mockId);
       expect(result).toEqual(mockProduct);
     });
     it('should throw an exception if product not found', async () => {
-      mockRepository.findOneBy.mockResolvedValueOnce(null);
       await expect(service.findOne(100)).rejects.toThrow(NotFoundException);
     });
   });
   describe('createOne', () => {
     it('should create a product', async () => {
+      jest.spyOn(mockRepository, 'create').mockReturnValue(mockProduct)
+      jest.spyOn(mockRepository, 'save').mockResolvedValue(mockProduct)
       const result = await service.createOne(mockData);
       expect(result).toEqual(mockProduct);
     });
     it('should throw an error if save fails', async () => {
       const mockError = new Error('Database error');
-      mockRepository.save.mockRejectedValueOnce(mockError);
+      jest.spyOn(mockRepository, 'create').mockReturnValue(mockProduct)
+      jest.spyOn(mockRepository, 'save').mockRejectedValueOnce(mockError);
       await expect(service.createOne(mockData)).rejects.toThrow(
         `Failed to create product: Error => ${mockError}`,
       );
@@ -89,7 +92,6 @@ describe('ProductsService', () => {
       expect(result).toEqual(mockProduct);
     });
     it('should throw a not found exception if product not found', async () => {
-      mockRepository.findOneBy.mockResolvedValueOnce(null);
       await expect(service.findOne(100)).rejects.toThrow(NotFoundException);
     });
     it('should throw an error if save fails', async () => {
@@ -102,12 +104,14 @@ describe('ProductsService', () => {
   });
   describe('deleteOne', () => {
     it('should delete a product by id', async () => {
-      mockRepository.findOneBy.mockResolvedValueOnce(mockProduct);
+      jest.spyOn(service, 'findOne').mockResolvedValue(mockProduct);
       const result = await service.deleteOne(mockId);
-      expect(result).toEqual(mockProduct);
+      expect(result).toEqual({
+        message: 'User deleted successfully',
+        data: mockProduct,
+      });
     });
     it('should throw a not found exception if product not found', async () => {
-      mockRepository.findOneBy.mockResolvedValueOnce(null);
       await expect(service.findOne(100)).rejects.toThrow(NotFoundException);
     });
   });
