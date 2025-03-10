@@ -29,7 +29,7 @@ export class CustomersService {
     try {
       const customer = await this.customerRepo.findOne({
         where: { id },
-        relations: ['orders'],
+        relations: ['orders.orderDetail.product'],
       });
       if (!customer) {
         throw new NotFoundException(`Customer with ID: ${id} not found`);
@@ -65,10 +65,16 @@ export class CustomersService {
 
   async updateOne(id: number, data: UpdateCustomerDto) {
     try {
-      const customer = await this.findOne(id);
-      const updatedCustomer = await this.customerRepo.merge(customer, data);
+      const customer = await this.customerRepo.findOneBy({ id });
+      if (!customer) {
+        throw new NotFoundException(`Customer with id ${id} not found`);
+      }
+      const updatedCustomer = this.customerRepo.merge(customer, data);
       await this.customerRepo.save(updatedCustomer);
-      return updatedCustomer;
+      return {
+        message: 'Customer updated successfully',
+        data: updatedCustomer,
+      };
     } catch (error) {
       throw new Error(`Failed to update customer - Error: ${error}`);
     }

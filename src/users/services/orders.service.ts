@@ -18,15 +18,31 @@ export class OrdersService {
   async findAll(params: FilterOptionsDto): Promise<Order[]> {
     try {
       const { limit, offset } = params;
+      const orders = await this.ordersRepo.createQueryBuilder('order')
+      .leftJoinAndSelect('order.orderDetail', 'orderDetail')
+      .leftJoinAndSelect('orderDetail.product', 'product')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .take(limit)
+      .skip(offset)
+      .getMany()
+      return orders;
+    } catch (error) {
+      throw new Error(`Failed to fetch orders - Error: ${error}`);
+    }
+  }
+/*   async findAll(params: FilterOptionsDto): Promise<Order[]> {
+    try {
+      const { limit, offset } = params;
       const orders = await this.ordersRepo.find({
         take: limit,
         skip: offset,
+        relations: ['orderDetail.product'],
       });
       return orders;
     } catch (error) {
       throw new Error('Failed to fetch orders');
     }
-  }
+  } */
 
   async findOne(id: number): Promise<Order> {
     try {

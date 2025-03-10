@@ -23,7 +23,7 @@ export class Customer {
   @Column({ type: 'varchar', length: 255 })
   lastName: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 50 })
   phone: string;
 
   @Column({ type: 'varchar', length: 255 })

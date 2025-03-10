@@ -14,7 +14,7 @@ import { FilterOptionsDto } from '../../common/filter-options.dto';
 export class OrderDetailService {
   constructor(
     @InjectRepository(OrderDetail)
-    private orderItemRepo: Repository<OrderDetail>,
+    private orderDetailRepo: Repository<OrderDetail>,
     @InjectRepository(Product) private productRepo: Repository<Product>,
     @InjectRepository(Order) private orderRepo: Repository<Order>,
   ) {}
@@ -22,19 +22,19 @@ export class OrderDetailService {
   async findAll(params: FilterOptionsDto) {
     try {
       const { limit, offset } = params;
-      const ordersItems = await this.orderItemRepo.find({
+      const ordersItems = await this.orderDetailRepo.find({
         take: limit,
         skip: offset,
       });
       return ordersItems;
     } catch (error) {
-      throw new Error('Failed to fetch order items');
+      throw new Error('Failed to fetch order detail');
     }
   }
 
   async findOne(id: number) {
     try {
-      const orderItem = await this.orderItemRepo.findOne({
+      const orderItem = await this.orderDetailRepo.findOne({
         where: { id },
         relations: ['product', 'order'],
       });
@@ -43,30 +43,49 @@ export class OrderDetailService {
       }
       return orderItem;
     } catch (error) {
-      throw new Error('Failed to fetch order item');
+      throw new Error('Failed to fetch order detail');
     }
   }
 
-  async createOrderItem(data: CreateOrderDetailDto) {
+  async createOrderDetail(data: CreateOrderDetailDto) {
     try {
       const [product, order] = await Promise.all([
         this.productRepo.findOneBy({ id: data.prodId }),
-        this.orderRepo.findOneBy({ id: data.orderId }),
+        this.orderRepo.findOne({ 
+          where: {id: data.orderId},
+          relations: ['customer', 'orderDetail.product']
+        }),
       ]);
       if (!product || !order) {
         throw new NotFoundException(
           `Not found: ${!product ? `Product ${data.prodId}` : ''} ${!order ? `Category ${data.orderId}` : ''}`.trim(),
         );
       }
-      const newOrderItem = this.orderItemRepo.create({
+      const newOrderItem = this.orderDetailRepo.create({
         order,
         product,
         quantity: data.quantity ?? 1, //Si quantity no se envia, es decir es null, se asigna 1
       });
-      await this.orderItemRepo.save(newOrderItem);
+      await this.orderDetailRepo.save(newOrderItem);
       return newOrderItem;
     } catch (error) {
-      throw new Error('Failed to create and save order item');
+      throw new Error('Failed to create and save order detail');
+    }
+  }
+
+  async deleteOrderDetail(id: number) {
+    try {
+      const orderDetail = await this.orderDetailRepo.findOneBy({ id });
+      if (!orderDetail) {
+        throw new NotFoundException(`Order detail with id ${id} not found`);
+      }
+      await this.orderDetailRepo.delete(id);
+      return {
+        message: 'Order detail deleted successfully',
+        data: orderDetail,
+      };
+    } catch (error) {
+      throw new Error('Failed to delete order detail');
     }
   }
 }
