@@ -30,9 +30,9 @@ export class UsersController {
   async getUser(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findOne(id);
   }
-  @Get('/:id/orders')
-  async getOrders(@Param('id', ParseIntPipe) id: number) {
-    return await this.userService.getUserOrders(id);
+  @Get('/:id')
+  async getUserByEmail(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.findOne(id);
   }
   @Post()
   async createUser(@Body() payload: CreateUserDto) {
@@ -49,4 +49,8 @@ export class UsersController {
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.deleteOne(id);
   }
+/*   @Get('/:id/orders')
+  async getOrders(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.getUserOrders(id);
+  } */
 }

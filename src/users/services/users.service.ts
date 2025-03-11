@@ -1,14 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 import { User } from '../entities/user.entity';
-
-import { Order } from '../entities/order.entity';
-
-import { ProductsService } from '../../products/services/products.service';
-import { Product } from 'src/products/entities/product.entity';
 
 import { CustomersService } from './customers.service';
 import { FilterOptionsDto } from '../../common/filter-options.dto';
@@ -17,7 +13,6 @@ import { FilterOptionsDto } from '../../common/filter-options.dto';
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
-    private productService: ProductsService,
     private customersService: CustomersService,
   ) {}
 
@@ -36,12 +31,26 @@ export class UsersService {
   }
 
   async findOne(id: number): Promise<User> {
-    const user: User | null = await this.userRepo.findOne({
-      where: { id },
-      relations: ['customer'],
+    try {
+      const user: User | null = await this.userRepo.findOne({
+        where: { id },
+        relations: ['customer'],
+      });
+      if (!user) {
+        throw new NotFoundException(`User with ID: ${id} not found`);
+      }
+      return user;
+    } catch (error) {
+      throw new Error('Failed to fetch user');
+    }
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.userRepo.findOne({
+      where: { email },
     });
     if (!user) {
-      throw new NotFoundException(`User with ID: ${id} not found`);
+      throw new NotFoundException(`User not found`);
     }
     return user;
   }
@@ -49,6 +58,8 @@ export class UsersService {
   async createOne(data: CreateUserDto): Promise<User> {
     try {
       const newUser: User = this.userRepo.create(data);
+      const hashPassword = await bcrypt.hash(newUser.password, 10);
+      newUser.password = hashPassword;
       if (data.customerId) {
         const customer = await this.customersService.findOne(data.customerId);
         newUser.customer = customer;
@@ -84,7 +95,7 @@ export class UsersService {
     }
   }
 
-  //Orders method
+  /*   //Orders method
   async getUserOrders(id: number) {
     try {
       const user: User = await this.findOne(id);
@@ -94,5 +105,5 @@ export class UsersService {
     } catch (error) {
       throw new Error(`Failed to fetch user orders - Error: ${error}`);
     }
-  }
+  } */
 }

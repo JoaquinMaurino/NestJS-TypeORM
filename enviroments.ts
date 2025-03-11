@@ -5,4 +5,4 @@ export const enviroments = {
 };
 
 //To select enviroment in powershell type in console:
-// $env:NODE_ENV="<enviroment>"; npm run dev
+// $env:NODE_ENV="<enviroment>"; npm run dev 
