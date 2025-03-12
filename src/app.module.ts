@@ -20,6 +20,7 @@ import config from '../config'
     isGlobal: true,
     validationSchema: Joi.object({
       API_KEY: Joi.string().required(),
+      JWT_SECRET: Joi.string().required(),
       DATABASE: Joi.string().required(),
     })
   }), ProductsModule, UsersModule, HttpModule, DatabaseModule, AuthModule],
