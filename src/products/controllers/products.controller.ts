@@ -10,23 +10,27 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 
-import { ProductsService } from '../services/products.service';
 import { ParseIntPipe } from '../../common/parse-int.pipe';
+import { ProductsService } from '../services/products.service';
 import {
   CreateProductDto,
   UpdateProductDto,
 } from '../dtos/product.dto';
-
 import { FilterOptionsDto } from '../../common/filter-options.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Public } from 'src/auth/decorators/public.decorator';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from 'src/auth/models/roles.enum';
 
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Fetch all products' })
   async getProducts(@Query() params: FilterOptionsDto) {
@@ -39,6 +43,7 @@ export class ProductsController {
     return await this.productsService.findOne(id);
   }
 
+  @Roles(Role.ADMIN)
   @Post()
   @ApiOperation({ summary: 'Create a single product' })
   async createProduct(@Body() data: CreateProductDto) {

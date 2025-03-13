@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 
 import { UsersService } from 'src/users/services/users.service';
 import { User } from 'src/users/entities/user.entity';
-import { Token } from '../interfaces/token.interface';
+import { Token } from '../models/token.interface';
 
 @Injectable()
 export class AuthService {

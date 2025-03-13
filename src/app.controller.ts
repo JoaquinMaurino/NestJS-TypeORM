@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, SetMetadata } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { ApiKeyGuard } from './auth/guards/api-key.guard';
