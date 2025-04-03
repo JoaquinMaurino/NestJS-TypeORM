@@ -19,8 +19,9 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   //Swagger documentation config
   const config = new DocumentBuilder()
-    .setTitle('API')
-    .setDescription('NEST API')
+    .addBearerAuth()
+    .setTitle('NestJS Project')
+    .setDescription('Backend Auth API')
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);

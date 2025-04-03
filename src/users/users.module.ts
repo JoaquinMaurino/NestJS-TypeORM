@@ -18,10 +18,12 @@ import { OrderDetailService } from './services/order-detail.service';
 import { OrderDetail } from './entities/order-detail.entity';
 
 import { ProductsModule } from '../products/products.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ProductsModule,
+    JwtModule,
     TypeOrmModule.forFeature([User, Customer, Order, OrderDetail]),
   ],
   controllers: [
@@ -36,6 +38,6 @@ import { ProductsModule } from '../products/products.module';
     OrdersService,
     OrderDetailService,
   ],
-  exports: [UsersService],
+  exports: [UsersService, TypeOrmModule],
 })
 export class UsersModule {}

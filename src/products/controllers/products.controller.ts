@@ -15,19 +15,14 @@ import { ParseIntPipe } from '../../common/parse-int.pipe';
 import { ProductsService } from '../services/products.service';
 import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
 import { FilterOptionsDto } from '../../common/filter-options.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../auth/guards/roles.guard';
-import { Public } from '../../auth/decorators/public.decorator';
-import { Roles } from '../../auth/decorators/roles.decorator';
-import { Role } from '../../auth/models/roles.enum';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
-  @Public()
   @Get()
   @ApiOperation({ summary: 'Fetch all products' })
   async getProducts(@Query() params: FilterOptionsDto) {
@@ -40,13 +35,14 @@ export class ProductsController {
     return await this.productsService.findOne(id);
   }
 
-  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({ summary: 'Create a single product' })
   async createProduct(@Body() data: CreateProductDto) {
     return await this.productsService.createOne(data);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   @ApiOperation({ summary: 'Update an existing product by ID' })
   async updateProduct(
@@ -56,6 +52,7 @@ export class ProductsController {
     return await this.productsService.updateOne(id, data);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an existing product by ID' })
   async deleteProduct(@Param('id', ParseIntPipe) id: number) {
@@ -63,6 +60,7 @@ export class ProductsController {
   }
 
   //Endpoints destinados a la modificacion del array categories de un producto
+  @UseGuards(JwtAuthGuard)
   @Delete(':prodId/category/:catId')
   async deleteCategory(
     @Param('prodId', ParseIntPipe) prodId: number,
@@ -70,6 +68,8 @@ export class ProductsController {
   ) {
     return await this.productsService.deleteCategory(prodId, catId);
   }
+
+  @UseGuards(JwtAuthGuard)
   @Put(':prodId/category/:catId')
   async addCategory(
     @Param('prodId', ParseIntPipe) prodId: number,

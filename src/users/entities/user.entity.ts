@@ -23,7 +23,7 @@ export class User {
   @Column({ type: 'varchar', length: 255 })
   password: string; //encrypt
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100,default:'user' })
   role: string;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
