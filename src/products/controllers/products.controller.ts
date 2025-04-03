@@ -7,22 +7,19 @@ import {
   Post,
   Put,
   Query,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 import { ParseIntPipe } from '../../common/parse-int.pipe';
 import { ProductsService } from '../services/products.service';
-import {
-  CreateProductDto,
-  UpdateProductDto,
-} from '../dtos/product.dto';
+import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
 import { FilterOptionsDto } from '../../common/filter-options.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Public } from 'src/auth/decorators/public.decorator';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { Role } from 'src/auth/models/roles.enum';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Public } from '../../auth/decorators/public.decorator';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { Role } from '../../auth/models/roles.enum';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('Products')

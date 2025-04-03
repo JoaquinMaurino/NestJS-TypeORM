@@ -3,21 +3,21 @@ import { IsOptional, IsPositive, Min, ValidateIf } from 'class-validator';
 export class FilterOptionsDto {
   @IsOptional()
   @IsPositive()
-  limit: number;
+  limit?: number;
 
   @IsOptional()
   @Min(0)
-  offset: number;
+  offset?: number;
 
   @ValidateIf((query)=>query.maxPrice)
   @IsPositive()
-  minPrice: number;
+  minPrice?: number;
 
   @ValidateIf((query)=>query.minPrice)
   @IsPositive()
-  maxPrice: number;
+  maxPrice?: number;
 
   @IsOptional()
   @IsPositive()
-  brandId: number;
+  brandId?: number;
 }

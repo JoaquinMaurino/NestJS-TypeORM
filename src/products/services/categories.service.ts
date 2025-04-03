@@ -14,58 +14,49 @@ export class CategoriesService {
   async findAll(params: FilterOptionsDto): Promise<Category[]> {
     try {
       const { limit, offset } = params;
-      const Categorys: Category[] = await this.categoryRepo.find({
+      const categories: Category[] = await this.categoryRepo.find({
         take: limit,
         skip: offset,
       });
-      return Categorys;
+      return categories;
     } catch (error) {
       throw new Error(`Failed to fetch Categories - Error: ${error}`);
     }
   }
 
   async findOne(id: number): Promise<Category> {
-    const Category: Category | null = await this.categoryRepo.findOne({
+    const category: Category | null = await this.categoryRepo.findOne({
       where: { id },
       relations: ['products'],
     });
-    if (!Category) {
+    if (!category) {
       throw new NotFoundException(`Category with ID: ${id} not found`);
     }
-    return Category;
+    return category;
   }
 
   async createOne(data: CreateCategoryDto): Promise<Category> {
-    try {
-      const newCategory: Category = this.categoryRepo.create(data);
-      await this.categoryRepo.save(newCategory);
-      return newCategory;
-    } catch (error) {
-      throw new Error(`Failed to create Category - Error: ${error}`);
-    }
+    const newCategory: Category = this.categoryRepo.create(data);
+    await this.categoryRepo.save(newCategory);
+    return newCategory;
   }
 
   async deleteOne(id: number): Promise<{ message: string; data: Category }> {
-    try {
-      const category: Category = await this.findOne(id);
-      await this.categoryRepo.delete(id);
-      return {
-        message: 'Category deleted successfully',
-        data: category,
-      };
-    } catch (error) {
-      throw new Error(`Failed to delete Category - Error: ${error}`);
+    const category: Category | null = await this.categoryRepo.findOneBy({ id });
+    if (!category) {
+      throw new NotFoundException();
     }
+    await this.categoryRepo.delete(id);
+    return {
+      message: 'Category deleted successfully',
+      data: category,
+    };
   }
 
   async updateOne(id: number, data: UpdateCategoryDto): Promise<Category> {
-    try {
-      const Category: Category = await this.findOne(id);
-      const updatedCategory: Category = this.categoryRepo.merge(Category, data);
-      await this.categoryRepo.save(updatedCategory);
-      return updatedCategory;
-    } catch (error) {
-      throw new Error(`Failed to update Category - Error: ${error}`);
-    }
+    const category: Category = await this.findOne(id);
+    const updatedCategory: Category = this.categoryRepo.merge(category, data);
+    await this.categoryRepo.save(updatedCategory);
+    return updatedCategory;
   }
 }

@@ -112,8 +112,16 @@ export class ProductsService {
     };
   }
 
+  async deleteOne(id: number) {
+    const product = await this.findOne(id);
+    await this.productRepo.delete(id);
+    return {
+      message: 'User deleted successfully',
+      data: product,
+    };
+  }
+
   async deleteCategory(prodId: number, catId: number) {
-    try {
       const product = await this.productRepo.findOne({
         where: { id: prodId },
         relations: ['categories'],
@@ -127,49 +135,33 @@ export class ProductsService {
         message: `Category ${catId} removed successfully from Product ${prodId}`,
         data: product,
       };
-    } catch (error) {
-      throw new Error(
-        `Failed to remove category from product: Error => ${error}`,
+
+    }
+  
+  async addCategory(prodId: number, catId: number) {
+    const [product, category] = await Promise.all([
+      this.productRepo.findOne({
+        where: { id: prodId },
+        relations: ['categories'],
+      }),
+      this.categoryRepo.findOneBy({ id: catId }),
+    ]);
+    if (!product || !category) {
+      throw new NotFoundException(
+        `Not found: ${!product ? `Product ${prodId}` : ''} ${!category ? `Category ${catId}` : ''}`.trim(),
       );
     }
-  }
-  async addCategory(prodId: number, catId: number) {
-    try {
-      const [product, category] = await Promise.all([
-        this.productRepo.findOne({
-          where: { id: prodId },
-          relations: ['categories'],
-        }),
-        this.categoryRepo.findOneBy({ id: catId }),
-      ]);
-      if (!product || !category) {
-        throw new NotFoundException(
-          `Not found: ${!product ? `Product ${prodId}` : ''} ${!category ? `Category ${catId}` : ''}`.trim(),
-        );
-      }
-      if (!product.categories.some((cat) => cat.id === catId)) {
-        product.categories.push(category);
-        await this.productRepo.save(product);
-        return {
-          message: `Category ${catId} added successfully to Product ${prodId}`,
-          data: product,
-        };
-      }
+    if (!product.categories.some((cat) => cat.id === catId)) {
+      product.categories.push(category);
+      await this.productRepo.save(product);
       return {
-        success: false,
-        message: `Category ${catId} already existis in Product ${prodId}, please try another one`,
+        message: `Category ${catId} added successfully to Product ${prodId}`,
+        data: product,
       };
-    } catch (error) {
-      throw new Error(`Failed to add category to product: Error => ${error}`);
     }
-  }
-
-  async deleteOne(id: number) {
-    const product = await this.findOne(id);
-    await this.productRepo.delete(id);
     return {
-      message: 'User deleted successfully',
-      data: product,
+      success: false,
+      message: `Category ${catId} already existis in Product ${prodId}, please try another one`,
     };
   }
 }
