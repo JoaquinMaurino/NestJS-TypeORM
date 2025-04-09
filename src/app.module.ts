@@ -1,5 +1,5 @@
 import { ConfigModule } from '@nestjs/config'
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios'
 import * as Joi from 'joi';
 import { lastValueFrom } from 'rxjs';
@@ -11,6 +11,8 @@ import { UsersModule } from './users/users.module';
 import { DatabaseModule } from './database/database.module';
 import { enviroments } from '../enviroments'
 import { AuthModule } from './auth/auth.module';
+
+import { LoggerMiddleware } from './middlewares/logger.middleware';
 import config from '../config'
 
 @Module({
@@ -38,4 +40,10 @@ import config from '../config'
     },
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule{
+  configure(consumer: MiddlewareConsumer) {
+
+    //Aplico el middleware a todas las rutas
+    consumer.apply(LoggerMiddleware).forRoutes('*')
+  }
+}

@@ -17,14 +17,13 @@ import { OrderItemController } from './controllers/order-detail.controller';
 import { OrderDetailService } from './services/order-detail.service';
 import { OrderDetail } from './entities/order-detail.entity';
 
-import { ProductsModule } from '../products/products.module';
 import { JwtModule } from '@nestjs/jwt';
+import { Product } from '../products/entities/product.entity';
 
 @Module({
   imports: [
-    ProductsModule,
     JwtModule,
-    TypeOrmModule.forFeature([User, Customer, Order, OrderDetail]),
+    TypeOrmModule.forFeature([User, Customer, Order, OrderDetail, Product]),
   ],
   controllers: [
     CustomersController,

@@ -17,12 +17,17 @@ import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
 import { FilterOptionsDto } from '../../common/filter-options.dto';
 
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { Role } from '../../auth/models/roles.enum';
 
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
+  @UseGuards(JwtAuthGuard,RolesGuard)
+  @Roles(Role.ADMIN)
   @Get()
   @ApiOperation({ summary: 'Fetch all products' })
   async getProducts(@Query() params: FilterOptionsDto) {
@@ -36,6 +41,7 @@ export class ProductsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Roles(Role.ADMIN)
   @Post()
   @ApiOperation({ summary: 'Create a single product' })
   async createProduct(@Body() data: CreateProductDto) {
